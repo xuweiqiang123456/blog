@@ -1,108 +1,106 @@
-import React,{ PureComponent } from 'react';
-import { connect } from 'react-redux';
-import { message } from 'antd';
-import { login, getInfo, logOut } from '../../reducer/user.redux';
-import { getlist } from '../../reducer/comment.redux';
-import { delComments } from '../../api/api';
+import React, { PureComponent } from "react";
+import { connect } from "react-redux";
+import { message } from "antd";
+import { login, getInfo, logOut } from "../../reducer/user.redux";
+import { getlist } from "../../reducer/comment.redux";
+import { delComments } from "../../api/api";
 
-import Gotop from 'react-go-top';
-import Bjq from '../../components/Bjq/Bjq';
-import Header from '../../components/Header/Header';
-import Bottom from '../../components/Bottom/Bottom';
-import Music from '../../components/Music/Music';
+import Gotop from "react-go-top";
+import Bjq from "../../components/Bjq/Bjq";
+import Header from "../../components/Header/Header";
+import Bottom from "../../components/Bottom/Bottom";
+// import Music from "../../components/Music/Music";
+// import Toast from "../../components/Toast/Toast";
 
-
-interface Props{
-  comment: any,
-  getlist: Function,
-  userinfo: any,
-  login: Function,
-  getInfo: Function,
-  logOut: Function
+interface Props {
+  comment: any;
+  getlist: Function;
+  userinfo: any;
+  login: Function;
+  getInfo: Function;
+  logOut: Function;
 }
-interface State{
-  msg: string,
-  time: number,
-  size: number
+interface State {
+  msg: string;
+  time: number;
+  size: number;
 }
 // @ts-ignore
-@connect(
-  state=>state,
-  {login, getInfo, logOut, getlist}
-)
-class Comments extends PureComponent<Props,State>{
-  constructor(props: Props){
-    super(props)
-    this.state={
-      msg: '',
+@connect(state => state, { login, getInfo, logOut, getlist })
+class Comments extends PureComponent<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      msg: "",
       time: 0,
-      size: 15,
-    } 
+      size: 15
+    };
     this.getMore = this.getMore.bind(this);
     this.delComment = this.delComment.bind(this);
     this.getComments = this.getComments.bind(this);
   }
-  componentDidMount(){
+  componentDidMount() {
     const { size } = this.state;
     const { list, count } = this.props.comment;
     count == 0 ? this.props.getInfo() : null;
     list.length == 0 ? this.props.getlist({ page: 0, size }) : null;
   }
- 
- 
-  async delComment(fId: any, _id:any){
+
+  async delComment(fId: any, _id: any) {
     const issuccess = await delComments(fId, _id);
-    if(!issuccess) { message.error('删除失败'); return };
-    message.success('删除成功');
+    if (!issuccess) {
+      message.error("删除失败");
+      return;
+    }
+    message.success("删除成功");
     const { size } = this.state;
-    this.props.getlist({ page: 0, size })
+    this.props.getlist({ page: 0, size });
   }
-  async getComments(){
+  async getComments() {
     const { size } = this.state;
-    await (this.props as any).getlist({page: 0, size});
+    await (this.props as any).getlist({ page: 0, size });
   }
-  async getMore(){
+  async getMore() {
     const { size } = this.state;
     const { page } = (this.props as any).comment;
     await (this.props as any).getlist({ page: page + 1, size });
   }
-  showToast(msg: string, time: number){
+  showToast(msg: string, time: number) {
     this.setState({
       msg: msg,
       time: time
-    })
-    setTimeout(()=>{
+    });
+    setTimeout(() => {
       this.setState({
         msg: ""
-      })
-    }, time*1000)
+      });
+    }, time * 1000);
   }
-  render(){
-    const { msg, size} = this.state;
-    const { userinfo, login ,logOut} = this.props;
+  render() {
+    const { msg, size } = this.state;
+    const { userinfo, login, logOut } = this.props;
     const { comment } = this.props;
-    return(
+    return (
       <div>
         <Header active={2} />
-        <Gotop style={{backgroundColor: "#ddd"}}/>
-        <Music />
+        <Gotop style={{ backgroundColor: "#ddd" }} />
+        {/* <Music />这是背景音乐模块 */}
         <h1>留言板</h1>
-        <Bjq 
-          userinfo={userinfo} 
-          login={login} 
-          logOut={logOut} 
-          list={comment.list} 
-          size={size} 
-          count={comment.count} 
-          getMore={this.getMore} 
-          getComments={this.getComments} 
+        <Bjq
+          userinfo={userinfo}
+          login={login}
+          logOut={logOut}
+          list={comment.list}
+          size={size}
+          count={comment.count}
+          getMore={this.getMore}
+          getComments={this.getComments}
           delComment={this.delComment}
         />
         {/* {msg ? <Toast msg={msg} /> : null} */}
         <Bottom />
-
       </div>
-    )
+    );
   }
 }
 export default Comments;
